@@ -3,61 +3,75 @@
 # Datum:   01.04.2018 19:00
 # Autor:   Marek Nožka, marek <@t> tlapicka <d.t> net
 ############################################################################
-from random import randint
 from math import sin, cos, radians, pi
+from random import randint
+
 import pyglet
 from pyglet.window.key import LEFT, RIGHT, UP, DOWN
-
 
 window = pyglet.window.Window()
 batch = pyglet.graphics.Batch()
 
 ACCELERATION = 78
-ROTATTION_SPEED = 123
+ROTATION_SPEED = 88
 
 
-class SpaceShip:
+class SpaceShip(object):
     def __init__(self, window=window, batch=batch):
+        self._x = self._y = 0
+        self._rotation = 45
+
+        self.keys = set()
+
         self.image = pyglet.image.load('ship.png')
         self.image.anchor_x = self.image.width // 2
         self.image.anchor_y = self.image.height // 2
         self.sprite = pyglet.sprite.Sprite(self.image, batch=batch)
+        self.sprite.rotation = self._rotation
 
-        self.x = randint(0, window.width)
-        self.x = 0
-        self.y = randint(0, window.height)
-        self.y = 0
         self.speed = 100
-        self.rotation = randint(0, 360)
-        self.rotation = 45
+        # self.x = randint(0, window.width)
+        # self.y = randint(0, window.height)
+        # self.rotation = randint(0, 360)
 
-        self.keys = set()
+    @property
+    def x(self):
+        return self._x
 
-    def __setattr__(self, name, value):
+    @x.setter
+    def x(self, new):
+        self._x = self.sprite.x = new
 
-        self.__dict__[name] = value
+    @property
+    def y(self):
+        return self._y
 
-        if name == 'x':
-            self.sprite.x = value
-        elif name == 'y':
-            self.sprite.y = value
-        elif name == 'rotation':
-            self.sprite.rotation = value
+    @y.setter
+    def y(self, new):
+        self._y = self.sprite.y = new
+
+    @property
+    def rotation(self):
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, new):
+        self._rotation = self.sprite.rotation = new
 
     def tick(self, dt):
-        self.x += dt * self.speed * cos(pi/2 - radians(self.rotation))
-        self.y += dt * self.speed * sin(pi/2 - radians(self.rotation))
+        self.x += dt * self.speed * cos(pi / 2 - radians(self._rotation))
+        self.y += dt * self.speed * sin(pi / 2 - radians(self._rotation))
         for sym in self.keys:
             if sym == LEFT:
-                ship.rotation -= ROTATTION_SPEED * dt
+                self.rotation -= ROTATION_SPEED * dt
             elif sym == RIGHT:
-                ship.rotation += ROTATTION_SPEED * dt
+                self.rotation += ROTATION_SPEED * dt
             elif sym == UP:
-                ship.speed += ACCELERATION * dt
+                self.speed += ACCELERATION * dt
             elif sym == DOWN:
-                ship.speed -= ACCELERATION * dt
-                if ship.speed < 0:
-                    ship.speed = 0
+                self.speed -= ACCELERATION * dt
+                if self.speed < 0:
+                    self.speed = 0
 
 
 ship = SpaceShip()
@@ -87,8 +101,8 @@ def on_key_release(sym, mod):
 @window.event
 def on_mouse_press(x, y, button, mod):
     print(button, mod)
-    ship.sprite.x = x
-    ship.sprite.y = y
+    ship.x = x
+    ship.y = y
 
 
 @window.event
@@ -97,6 +111,6 @@ def on_draw():
     batch.draw()
 
 
-pyglet.clock.schedule_interval(tik, 1/30)
+pyglet.clock.schedule_interval(tik, 1 / 30)
 
 pyglet.app.run()
