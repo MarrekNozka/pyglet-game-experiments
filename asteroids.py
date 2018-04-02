@@ -4,7 +4,6 @@
 # Autor:   Marek Nožka, marek <@t> tlapicka <d.t> net
 ############################################################################
 from math import sin, cos, radians, pi
-from random import randint
 
 import pyglet
 from pyglet.window.key import LEFT, RIGHT, UP, DOWN
@@ -16,7 +15,24 @@ ACCELERATION = 78
 ROTATION_SPEED = 88
 
 
+def sprite_proxy(attr: str):
+    underscored = '_{}'.format(attr)
+
+    def set_(self: "SpaceShip", new):
+        setattr(self.sprite, attr, new)
+        setattr(self, underscored, new)
+
+    def get_(self: "SpaceShip"):
+        return getattr(self, underscored)
+
+    return property(fget=get_, fset=set_)
+
+
 class SpaceShip(object):
+    x = sprite_proxy('x')
+    y = sprite_proxy('y')
+    rotation = sprite_proxy('rotation')
+
     def __init__(self, window=window, batch=batch):
         self._x = self._y = 0
         self._rotation = 45
@@ -27,36 +43,12 @@ class SpaceShip(object):
         self.image.anchor_x = self.image.width // 2
         self.image.anchor_y = self.image.height // 2
         self.sprite = pyglet.sprite.Sprite(self.image, batch=batch)
-        self.sprite.rotation = self._rotation
+        self.sprite.rotation = self.rotation
 
         self.speed = 100
         # self.x = randint(0, window.width)
         # self.y = randint(0, window.height)
         # self.rotation = randint(0, 360)
-
-    @property
-    def x(self):
-        return self._x
-
-    @x.setter
-    def x(self, new):
-        self._x = self.sprite.x = new
-
-    @property
-    def y(self):
-        return self._y
-
-    @y.setter
-    def y(self, new):
-        self._y = self.sprite.y = new
-
-    @property
-    def rotation(self):
-        return self._rotation
-
-    @rotation.setter
-    def rotation(self, new):
-        self._rotation = self.sprite.rotation = new
 
     def tick(self, dt):
         self.x += dt * self.speed * cos(pi / 2 - radians(self._rotation))
