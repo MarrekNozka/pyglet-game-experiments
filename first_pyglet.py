@@ -9,7 +9,7 @@ import math
 
 
 window = pyglet.window.Window()
-
+batch = pyglet.graphics.Batch()
 
 hand_image = pyglet.image.load('ship.png')
 hand_sprite = pyglet.sprite.Sprite(hand_image)
@@ -25,28 +25,26 @@ def tik(t):
     hand_sprite.y = hand_sprite.y + 20 * math.sin(hand_sprite.x / 5)
 
 
-def on_text_handler(text):
+@window.event
+def on_text(text):
     # hand_sprite.x = random.randint(1, 500)
     # hand_sprite.y = random.randint(1, 500)
     hand_sprite.rotation += 30
 
 
-def mouse_press_handler(x, y, button, mod):
+@window.event
+def on_mouse_press(x, y, button, mod):
     print(button, mod)
     hand_sprite.x = x
     hand_sprite.y = y
 
 
-def on_draw_handler():
+@window.event
+def on_draw():
     window.clear()
     hand_sprite.draw()
 
 
-window.push_handlers(
-        on_text=on_text_handler,
-        on_draw=on_draw_handler,
-        on_mouse_press=mouse_press_handler,
-)
 pyglet.clock.schedule_interval(tik, 1/30)
 
 
