@@ -16,14 +16,11 @@ ROTATION_SPEED = 88
 
 
 def sprite_proxy(attr: str):
-    underscored = '_{}'.format(attr)
-
     def set_(self: "SpaceShip", new):
         setattr(self.sprite, attr, new)
-        setattr(self, underscored, new)
 
     def get_(self: "SpaceShip"):
-        return getattr(self, underscored)
+        return getattr(self.sprite, attr)
 
     return property(fget=get_, fset=set_)
 
@@ -34,25 +31,25 @@ class SpaceShip(object):
     rotation = sprite_proxy('rotation')
 
     def __init__(self, window=window, batch=batch):
-        self._x = self._y = 0
-        self._rotation = 45
-
         self.keys = set()
 
         self.image = pyglet.image.load('ship.png')
         self.image.anchor_x = self.image.width // 2
         self.image.anchor_y = self.image.height // 2
         self.sprite = pyglet.sprite.Sprite(self.image, batch=batch)
-        self.sprite.rotation = self.rotation
 
         self.speed = 100
+
+        self.x = self.y = 0
+        self.rotation = 45
+
         # self.x = randint(0, window.width)
         # self.y = randint(0, window.height)
         # self.rotation = randint(0, 360)
 
     def tick(self, dt):
-        self.x += dt * self.speed * cos(pi / 2 - radians(self._rotation))
-        self.y += dt * self.speed * sin(pi / 2 - radians(self._rotation))
+        self.x += dt * self.speed * cos(pi / 2 - radians(self.rotation))
+        self.y += dt * self.speed * sin(pi / 2 - radians(self.rotation))
         for sym in self.keys:
             if sym == LEFT:
                 self.rotation -= ROTATION_SPEED * dt
